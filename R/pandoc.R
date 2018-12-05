@@ -536,10 +536,10 @@ pandoc_html_highlight_args <- function(template,
     }
     else {
       args <- c(args, "--highlight-style", highlight)
-      highlight_properties <- get_highlight_properties(highlight)
-      if(!highlight_properties$no_background)
+      highlight_properties <- get_highlight_styles(highlight)
+      if(!is.null(highlight_properties[["background-color"]]))
         args <- c(args, pandoc_variable_arg("highlight-backgroundcol", "1"))
-      if(!highlight_properties$no_color)
+      if(!is.null(highlight_properties[["text-color"]]))
         args <- c(args, pandoc_variable_arg("highlight-color", "1"))
     }
   }
@@ -548,13 +548,15 @@ pandoc_html_highlight_args <- function(template,
 }
 
 # get highligh property from pandoc
-get_highlight_properties <- function(pandoc_highlight) {
-  no_background_pandoc_highlight <- c("pygments", "haddock", "monochrome")
-  no_color_pandoc_highlight <- c("pygments", "tango", "haddock", "monochrome")
-  list(
-    no_background = pandoc_highlight %in% no_background_pandoc_highlight,
-    no_color =  pandoc_highlight %in% no_color_pandoc_highlight
-  )
+get_highlight_styles <- function(pandoc_highlight) {
+  # default is to consider no highlighh
+  properties <- list()
+  if (pandoc2.0()) {
+    arg <- c("--print-highlight-style", pandoc_highlight)
+    json_res <- system2(pandoc(), arg, stdout = TRUE)
+    properties <- jsonlite::fromJSON(paste0(json_res, collapse = "\n"))
+  }
+  properties
 }
 
 is_highlightjs <- function(highlight) {
