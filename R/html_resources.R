@@ -213,7 +213,10 @@ discover_rmd_resources <- function(rmd_file, encoding, discover_single_resource)
   if (is.list(output_formats)) {
     for (output_format in output_formats) {
       if (is.list(output_format)) {
-        output_render_files <- c(output_format$includes, output_format$pandoc_args, output_format$logo)
+        output_render_files <- c(output_format$includes,
+                                 output_format$pandoc_args,
+                                 output_format$reference_doc,
+                                 output_format$logo)
         for (output_render_file in output_render_files) {
           discover_render_resource(output_render_file)
         }
